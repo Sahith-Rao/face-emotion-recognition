@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        video {
+            max-width: 300px;
+            margin: 10px auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Emotion Detector</h1>
+    <p>Using your webcam to detect emotions...</p>
+    <video id="video" autoplay></video>
+    <div id="output"></div>
+
+    <script>
+        async function setupCamera() {
+            const video = document.getElementById('video');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (error) {
+                alert('Error accessing webcam: ' + error.message);
+            }
+        }
+
+        async function captureFrame(video) {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg');
+        }
+
+        async function detectEmotion() {
+            const video = document.getElementById('video');
+            if (!video || video.readyState !== HTMLMediaElement.HAVE_ENOUGH_DATA) {
+                return;
+            }
+
+            const base64Image = await captureFrame(video);
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/predictemotion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: base64Image }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                document.getElementById('output').innerHTML = `
+                    <p>Emotion: <strong>${result.emotion}</strong></p>
+                    <p>Face Bounding Box: (${result.x1}, ${result.y1}) to (${result.x2}, ${result.y2})</p>
+                `;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `
+                    <p style="color: red;">Error: ${error.message}</p>
+                `;
+            }
+        }
+
+        setupCamera();
+
+        setInterval(detectEmotion, 2000); 
+    </script>
+</body>
+</html>
