@@ -27,9 +27,9 @@ labels = {0: 'angry', 1: 'disgust', 2: 'fear', 3: 'happy', 4: 'neutral', 5: 'sad
 def predictemotion():
     data = request.get_json()
     if data is None or 'image' not in data:
-        return jsonify({"error": "invalid request"}), 400
+        return jsonify({"error": "Invalid request"}), 400
     
-    string_image = data['image'].split(',')[1]  
+    string_image = data['image']
     string_image = base64.b64decode(string_image)
     nparr_image = np.frombuffer(string_image, np.uint8)
     img = cv2.imdecode(nparr_image, cv2.IMREAD_GRAYSCALE)
@@ -41,13 +41,9 @@ def predictemotion():
         features = extract_features(face)
         pred = model.predict(features)
         prediction_label = labels[np.argmax(pred)]
-        return jsonify({
-            "emotion": prediction_label,
-            "x1": int(x), "y1": int(y),
-            "x2": int(w), "y2": int(h)
-        }), 200
+        return jsonify({"emotion": prediction_label}), 200
     
-    return jsonify({"emotion": "face not detected"}), 200
+    return jsonify({"emotion": "No face detected"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
