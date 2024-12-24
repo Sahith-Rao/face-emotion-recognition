@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Emotion Detector</title>
+    <title>Emotion Detector - Landing</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Real-Time Emotion Detector</h1>
-        <video id="webcam" autoplay playsinline></video>
-        <p id="result">Detecting...</p>
+    <div class="landing-container">
+        <div class="landing-content">
+            <h1>Welcome to Emotion Detector</h1>
+            <p class="tagline">Analyze and understand emotions in real-time using advanced AI.</p>
+            <button onclick="location.href='{{ url_for('detection') }}';">Detect Emotion</button>
+        </div>
     </div>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
